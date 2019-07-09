@@ -7,13 +7,33 @@ See [BigQuery documentation](https://cloud.google.com/bigquery/docs) and [librar
 from google.cloud import bigquery
 import pandas as pd
 
+def get_crux_latest_month(project_id,country_id):
+    client = bigquery.Client(project=project_id)
+    latest_month_query=f'''
+      SELECT _TABLE_SUFFIX as month
+      FROM `chrome-ux-report.country_{country_id}.*`
+      ORDER by month DESC LIMIT 1
+    '''
+
+    rows = client.query(latest_month_query).to_dataframe()
+    return rows.at[0,'month']
+
+def get_ha_latest_month(project_id):
+    client = bigquery.Client(project=project_id)
+    latest_month_query=f'''
+      SELECT SUBSTR(_TABLE_SUFFIX,0,10) as month
+      FROM `httparchive.lighthouse.*`
+      ORDER by month DESC LIMIT 1
+    '''
+
+    rows = client.query(latest_month_query).to_dataframe()
+    return rows.at[0,'month']
+
 
 """# Get the PWA score trends in the country
 
 The first thing we can do is to understand how good the experiences from country websites, what kind of experiences they're offer to the users. Please note the query below will process >5 TB data.
 """
-
-
 def generate_monthly_lighthouse(project_id,country_id,origins_view):
     client = bigquery.Client(project=project_id)
     lighthouse_monthly=f'''

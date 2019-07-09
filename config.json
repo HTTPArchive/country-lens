@@ -1,11 +1,8 @@
-
 {
   "project_id" : "ecosystem-activation",
   "common_dataset_id" : "general",
   "bucket_id":"web-ecosystem-id",
-  "country_id" : "in",
-  "crux_month" : "201904",
-  "ha_date" : "2019_04_01",
+  "country_id" : "id",
   "origin_appearances_table" : "origin_appearances",
   "technologies":["WordPress","React","PHP","Vue.js","Google AdSense","AngularJS"]
 }

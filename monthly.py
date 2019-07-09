@@ -9,8 +9,8 @@ with open('config.json', 'r') as f:
 project_id = config['project_id']
 common_dataset_id = config['common_dataset_id']
 country_id = config['country_id']
-crux_month = config['crux_month']
-ha_date = config['ha_date']
+crux_month = get_crux_latest_month(project_id,country_id)
+ha_date = get_ha_latest_month(project_id)
 origin_appearances_table= config['origin_appearances_table']
 bucket_id=config['bucket_id']
 origins_view='origins'
