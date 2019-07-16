@@ -1,14 +1,14 @@
-# country-state-of-the-web
-A python script to generate the country state of the web based on Chrome UX Report and HTTP Archive
+# Country Lens
+A python script to generate the country lens based on Chrome UX Report and HTTP Archive
 
 ## Requirement
-This script need a working Google Cloud Billing with active Google Cloud project credentials in the machine. 
+This script need a working Google Cloud Billing with active Google Cloud project credentials in the machine, and it's using [Python Client Google Big Query](https://googleapis.github.io/google-cloud-python/latest/bigquery/index.html). So follow the guidence to setup and enable the Big Query in your project.
 
 ## Setup
 1. Check config file at `config.json` and update the value for country code and which month dataset you want to generate.
 2. If this is a first time you run the script under your Google Cloud Project, then you need to run `python setup.py` first. This script will generate some data that will need for monthly script.
 3. Run the monthly script `python monthly.py` to generate your monthly data. You need to run the script every month whenever you want to update the data with the latest one.
-4. The script will automatically upload the generated data to Google Cloud Storage in CSV and JSON format with public access setting so you can use it later for your app or Google Data Studio. Check your Google Cloud Storage bucket to see all the generated files.
+4. The script will automatically upload the generated data to Google Cloud Storage in CSV and JSON format with public access setting so you can use it later for your app or Google Data Studio. Check your [Google Cloud Storage bucket](https://console.cloud.google.com/storage/browser) to see all the generated files.
 
 ## Generated Data
 Below are the generated data that you will see in your Google Cloud Storage bucket
@@ -20,4 +20,7 @@ Below are the generated data that you will see in your Google Cloud Storage buck
 6. page_weight_med_monthly': Page weight trends details, break down to each type of resources.
 
 ## Generate Specific Technology Dataset
-Use the generated data above, you can generate the data only for specific technology only. Just add the technology name that listed under HTTP Archive technology dataset to `config.json`. Each technology
+Use the generated data above, you can generate the data only for specific technology only. Just add the technology name that listed under HTTP Archive technology dataset to `config.json`. Each technology will run 6 queries above, generate the data in CSV and JSON, then upload it to Google Storage with public access. 
+
+## Consume The Data 
+You can use the data with [Google Data Studio](https://datastudio.google.com) and import the CSV data as data source. Or build a dashboard by your self and use the JSON data as data source. Browse the generated data [with Google Cloud Storage Console](https://console.cloud.google.com/storage)
