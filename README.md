@@ -2,11 +2,30 @@
 A python script to generate the country lens based on Chrome UX Report and HTTP Archive
 
 ## Requirement
-This script need a working Google Cloud Billing with active Google Cloud project credentials in the machine, and it's using [Python Client Google Big Query](https://googleapis.github.io/google-cloud-python/latest/bigquery/index.html). So follow the guidence to setup and enable the Big Query in your project.
+This project is using Python 3.7 so please make sure you have a same Python version setup. Follow the steps below to install all required components.
+
+1. Setup a virtual environtment for your project by install virtualenv 
+
+    `pip install virtualenv`
+
+2. Activate your virtual environtment 
+
+    `virtualenv <your-env>`
+
+3. Install required libraries
+    1. Install panda data manipulation library
+    
+        `pip install pandas` 
+    2. Install panda data manipulation library
+        
+        `pip install google-cloud-bigquery`  
+    3. install Google Cloud Storage library
+    
+        `pip install google-cloud-storage` 
 
 ## Setup
 1. Check config file at `config.json` and update the value for country code and which month dataset you want to generate.
-2. If this is a first time you run the script under your Google Cloud Project, then you need to run `python setup.py` first. This script will generate some data that will need for monthly script.
+2. Run `python setup.py` first. This script will generate some data that will update the latest local origins in a country.
 3. Run the monthly script `python monthly.py` to generate your monthly data. You need to run the script every month whenever you want to update the data with the latest one.
 4. The script will automatically upload the generated data to Google Cloud Storage in CSV and JSON format with public access setting so you can use it later for your app or Google Data Studio. Check your [Google Cloud Storage bucket](https://console.cloud.google.com/storage/browser) to see all the generated files.
 

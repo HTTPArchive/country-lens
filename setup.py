@@ -1,4 +1,5 @@
 from google.cloud import bigquery
+from queries import *
 import json
 
 with open('config.json', 'r') as f:
@@ -51,7 +52,7 @@ sql=f'''
   SELECT
     origin,
     count(country) AS appearances
-  FROM `chrome-ux-report.materialized.country_query`
+  FROM `chrome-ux-report.materialized.country_summary`
   WHERE
     yyyymm = '{crux_month}'
   GROUP BY origin
