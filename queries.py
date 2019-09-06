@@ -99,6 +99,9 @@ def generate_lighthouse_audits(project_id,country_id,origins_view,ha_date):
       COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['manifest-short-name-length'].score") AS NUMERIC),0)>0) AS manifest_short_name_length,
       COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['password-inputs-can-be-pasted-into'].score") AS NUMERIC),0)>0) AS password_inputs_can_be_pasted_into,
       COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['errors-in-console'].score") AS NUMERIC),0)>0) AS errors_in_console,
+      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['uses-responsive-images'].score") AS NUMERIC),0)>0) AS uses_responsive_images,
+      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['uses-webp-images'].score") AS NUMERIC),0)>0) AS uses_webp,
+      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['offscreen-images'].score") AS NUMERIC),0)>0) AS offscreen_images,
       COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['image-aspect-ratio'].score") AS NUMERIC),0)>0) AS image_aspect_ratio
     FROM
       `httparchive.lighthouse.{ha_date}_mobile` as LH
