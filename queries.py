@@ -40,11 +40,11 @@ def generate_monthly_lighthouse(project_id,country_id,origins_view):
       SELECT
         SUBSTR(_TABLE_SUFFIX,1,10) AS month,
         count(url) as url_counts,
-        (APPROX_QUANTILES(CAST(JSON_EXTRACT(report, '$.categories.performance.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS Performance,
-        (APPROX_QUANTILES(CAST(JSON_EXTRACT(report, '$.categories.accessibility.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS Accessibility,
-        (APPROX_QUANTILES(CAST(JSON_EXTRACT(report, '$.categories.best-practices.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS BestPractices,
-        (APPROX_QUANTILES(CAST(JSON_EXTRACT(report, '$.categories.seo.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS SEO,
-        (APPROX_QUANTILES(CAST(JSON_EXTRACT(report, '$.categories.pwa.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS PWA
+        (APPROX_QUANTILES(SAFE_CAST(JSON_EXTRACT(report, '$.categories.performance.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS Performance,
+        (APPROX_QUANTILES(SAFE_CAST(JSON_EXTRACT(report, '$.categories.accessibility.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS Accessibility,
+        (APPROX_QUANTILES(SAFE_CAST(JSON_EXTRACT(report, '$.categories.best-practices.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS BestPractices,
+        (APPROX_QUANTILES(SAFE_CAST(JSON_EXTRACT(report, '$.categories.seo.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS SEO,
+        (APPROX_QUANTILES(SAFE_CAST(JSON_EXTRACT(report, '$.categories.pwa.score') as NUMERIC), 100)[SAFE_ORDINAL(50)] * 100) AS PWA
       FROM
         `httparchive.lighthouse.*`
       WHERE
@@ -70,47 +70,47 @@ def generate_lighthouse_audits(project_id,country_id,origins_view,ha_date):
     client = bigquery.Client(project=project_id)
     lh_audits = f'''
     SELECT
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['first-contentful-paint'].score") AS NUMERIC),0)>0) AS first_contentful_paint,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['first-meaningful-paint'].score") AS NUMERIC),0)>0) AS first_meaningful_paint,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['first-cpu-idle'].score") AS NUMERIC),0)>0) AS first_cpu_idle,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['interactive'].score") AS NUMERIC),0)>0) AS interactive,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['speed-index'].score") AS NUMERIC),0)>0) AS speed_index,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['estimated-input-latency'].score") AS NUMERIC),0)>0) AS estimated_input_latency,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['service-worker'].score") AS NUMERIC),0)>0) AS service_worker,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['works-offline'].score") AS NUMERIC),0)>0) AS work_offline,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['without-javascript'].score") AS NUMERIC),0)>0) AS without_javascript,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['is-on-https'].score") AS NUMERIC),0)>0) AS is_on_https,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['redirects-http'].score") AS NUMERIC),0)>0) AS redirect_http,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['load-fast-enough-for-pwa'].score") AS NUMERIC),0)>0) AS load_fast_enough_for_pwa,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['webapp-install-banner'].score") AS NUMERIC),0)>0) AS webapp_install_banner,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['splash-screen'].score") AS NUMERIC),0)>0) AS splash_screen,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['themed-omnibox'].score") AS NUMERIC),0)>0) AS themed_omnibox,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['viewport'].score") AS NUMERIC),0)>0) AS viewport,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['appcache-manifest'].score") AS NUMERIC),0)>0) AS appcache_manifest,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['no-websql'].score") AS NUMERIC),0)>0) AS no_websql,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['uses-http2'].score") AS NUMERIC),0)>0) AS uses_http2,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['uses-passive-event-listeners'].score") AS NUMERIC),0)>0) AS uses_passive_event_listeners,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['no-mutation-events'].score") AS NUMERIC),0)>0) AS no_mutation_events,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['no-document-write'].score") AS NUMERIC),0)>0) AS no_document_write,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['geolocation-on-start'].score") AS NUMERIC),0)>0) AS geolocation_on_start,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['no-vulnerable-libraries'].score") AS NUMERIC),0)>0) AS no_vulnerable_libraries,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['notification-on-start'].score") AS NUMERIC),0)>0) AS notification_on_start,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['deprecations'].score") AS NUMERIC),0)>0) AS deprecations,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['manifest-short-name-length'].score") AS NUMERIC),0)>0) AS manifest_short_name_length,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['password-inputs-can-be-pasted-into'].score") AS NUMERIC),0)>0) AS password_inputs_can_be_pasted_into,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['errors-in-console'].score") AS NUMERIC),0)>0) AS errors_in_console,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['uses-responsive-images'].score") AS NUMERIC),0)>0) AS uses_responsive_images,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['uses-webp-images'].score") AS NUMERIC),0)>0) AS uses_webp,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['offscreen-images'].score") AS NUMERIC),0)>0) AS offscreen_images,
-      COUNTIF(IFNULL(CAST(JSON_EXTRACT(LH.report, "$.audits['image-aspect-ratio'].score") AS NUMERIC),0)>0) AS image_aspect_ratio
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['first-contentful-paint'].score") AS NUMERIC),0)>0) AS first_contentful_paint,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['first-meaningful-paint'].score") AS NUMERIC),0)>0) AS first_meaningful_paint,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['first-cpu-idle'].score") AS NUMERIC),0)>0) AS first_cpu_idle,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['interactive'].score") AS NUMERIC),0)>0) AS interactive,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['speed-index'].score") AS NUMERIC),0)>0) AS speed_index,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['estimated-input-latency'].score") AS NUMERIC),0)>0) AS estimated_input_latency,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['service-worker'].score") AS NUMERIC),0)>0) AS service_worker,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['works-offline'].score") AS NUMERIC),0)>0) AS work_offline,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['without-javascript'].score") AS NUMERIC),0)>0) AS without_javascript,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['is-on-https'].score") AS NUMERIC),0)>0) AS is_on_https,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['redirects-http'].score") AS NUMERIC),0)>0) AS redirect_http,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['load-fast-enough-for-pwa'].score") AS NUMERIC),0)>0) AS load_fast_enough_for_pwa,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['webapp-install-banner'].score") AS NUMERIC),0)>0) AS webapp_install_banner,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['splash-screen'].score") AS NUMERIC),0)>0) AS splash_screen,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['themed-omnibox'].score") AS NUMERIC),0)>0) AS themed_omnibox,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['viewport'].score") AS NUMERIC),0)>0) AS viewport,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['appcache-manifest'].score") AS NUMERIC),0)>0) AS appcache_manifest,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['no-websql'].score") AS NUMERIC),0)>0) AS no_websql,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['uses-http2'].score") AS NUMERIC),0)>0) AS uses_http2,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['uses-passive-event-listeners'].score") AS NUMERIC),0)>0) AS uses_passive_event_listeners,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['no-mutation-events'].score") AS NUMERIC),0)>0) AS no_mutation_events,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['no-document-write'].score") AS NUMERIC),0)>0) AS no_document_write,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['geolocation-on-start'].score") AS NUMERIC),0)>0) AS geolocation_on_start,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['no-vulnerable-libraries'].score") AS NUMERIC),0)>0) AS no_vulnerable_libraries,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['notification-on-start'].score") AS NUMERIC),0)>0) AS notification_on_start,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['deprecations'].score") AS NUMERIC),0)>0) AS deprecations,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['manifest-short-name-length'].score") AS NUMERIC),0)>0) AS manifest_short_name_length,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['password-inputs-can-be-pasted-into'].score") AS NUMERIC),0)>0) AS password_inputs_can_be_pasted_into,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['errors-in-console'].score") AS NUMERIC),0)>0) AS errors_in_console,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['uses-responsive-images'].score") AS NUMERIC),0)>0) AS uses_responsive_images,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['uses-webp-images'].score") AS NUMERIC),0)>0) AS uses_webp,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['offscreen-images'].score") AS NUMERIC),0)>0) AS offscreen_images,
+      COUNTIF(IFNULL(SAFE_CAST(JSON_EXTRACT(LH.report, "$.audits['image-aspect-ratio'].score") AS NUMERIC),0)>0) AS image_aspect_ratio
     FROM
-      `httparchive.lighthouse.{ha_date}_mobile` as LH
+      `httparchive.latest.lighthouse_mobile` as LH
      WHERE
         RTRIM(url,'/') IN (SELECT origin FROM `{project_id}.{country_id}.{origins_view}`)
     '''
 
     df_audits = client.query(lh_audits).to_dataframe()
-    return pd.melt(df_audits, value_vars=[ 'first_contentful_paint','first_meaningful_paint','first_cpu_idle','interactive','speed_index','estimated_input_latency','service_worker','work_offline','without_javascript','is_on_https','redirect_http','load_fast_enough_for_pwa','webapp_install_banner','splash_screen','themed_omnibox','viewport','appcache_manifest','no_websql','uses_http2','uses_passive_event_listeners','no_mutation_events','no_document_write','geolocation_on_start','no_vulnerable_libraries','notification_on_start','deprecations','manifest_short_name_length','password_inputs_can_be_pasted_into','errors_in_console','image_aspect_ratio'],var_name='audit', value_name='count')
+    return pd.melt(df_audits, value_vars=[ 'first_contentful_paint','first_meaningful_paint','first_cpu_idle','interactive','speed_index','estimated_input_latency','service_worker','work_offline','without_javascript','is_on_https','redirect_http','load_fast_enough_for_pwa','webapp_install_banner','splash_screen','themed_omnibox','viewport','appcache_manifest','no_websql','uses_http2','uses_passive_event_listeners','no_mutation_events','no_document_write','geolocation_on_start','no_vulnerable_libraries','notification_on_start','deprecations','manifest_short_name_length','password_inputs_can_be_pasted_into','errors_in_console','uses_responsive_images','uses_webp','offscreen_images','image_aspect_ratio'],var_name='audit', value_name='count')
 
 """# Analyze The Performance and See What's Affecting It
 
@@ -120,13 +120,12 @@ def generate_fcp_monthly(project_id,country_id,origins_view):
     client = bigquery.Client(project=project_id)
     fcp_monthly = f'''
     SELECT
-      _TABLE_SUFFIX AS month,
-      ROUND(SUM(IF(bin.start < 1000, bin.density, 0)) / SUM(bin.density), 4) AS fast,
-      ROUND(SUM(IF(bin.start >= 1000 AND bin.start < 3000, bin.density, 0)) / SUM(bin.density), 4) AS avg,
-      ROUND(SUM(IF(bin.start >= 3000, bin.density, 0)) / SUM(bin.density), 4) AS slow
+      yyyymm AS month,
+      SUM(fast_fcp)/COUNT(DISTINCT origin) AS fast,
+      SUM(avg_fcp)/COUNT(DISTINCT origin) AS avg,
+      SUM(slow_fcp)/COUNT(DISTINCT origin) AS slow
     FROM
-      `chrome-ux-report.country_{country_id}.*`,
-      UNNEST(first_contentful_paint.histogram.bin) AS bin
+      `chrome-ux-report.materialized.metrics_summary`
     WHERE
       origin IN (SELECT origin FROM `{project_id}.{country_id}.origins`)
     GROUP BY

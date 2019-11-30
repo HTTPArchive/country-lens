@@ -37,12 +37,13 @@ def upload_to_gs(dataframe,filename):
 
 upload_to_gs(generate_monthly_lighthouse(project_id,country_id,origins_view),'lighthouse_monthly')
 upload_to_gs(generate_efconn_monthly(project_id,country_id,origins_view), 'efconn_monthly')
-upload_to_gs(generate_lighthouse_audits(project_id,country_id,origins_view,ha_date),'lighthouse_audits')
 upload_to_gs(generate_fcp_monthly(project_id,country_id,origins_view),'fcp_monthly')
 upload_to_gs(generate_weight_monthly(project_id,country_id,origins_view),'page_weight_monthly')
 upload_to_gs(generate_weight_median_monthly(project_id,country_id,origins_view),'page_weight_med_monthly')
+upload_to_gs(generate_lighthouse_audits(project_id,country_id,origins_view,ha_date),'lighthouse_audits')
 
 for technology in config["technologies"]:
+    print("Generate data for ", technology)
     table_id=technology.lower().replace('.','_').replace(' ','_')
     upload_to_gs(generate_monthly_lighthouse(project_id,country_id,table_id),'lighthouse_monthly_'+table_id)
     upload_to_gs(generate_efconn_monthly(project_id,country_id,table_id), 'efconn_monthly_'+table_id)
